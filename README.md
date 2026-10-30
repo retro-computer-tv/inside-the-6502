@@ -18,30 +18,27 @@ The small programs from Retro Computer TV's film *Inside the 6502: How 3,510 Tra
 
 `c64/bigfont.asm` is the double-size text that several C64 programs include.
 
-## Building
+## Run them
 
-Everything assembles with [dasm](https://github.com/dasm-assembler/dasm) (2.20 or later). With Python 3:
+Nothing to build: everything ready to run is in the [run](run) folder.
 
-```sh
-python build.py              # everything, into build/ (DASM=/path/to/dasm if it isn't on the PATH)
-```
+**Commodore 64.** Every C64 program is on one disk, [inside-the-6502.d64](https://github.com/retro-computer-tv/inside-the-6502/raw/main/run/inside-the-6502.d64). Open it in an emulator such as [VICE](https://vice-emu.sourceforge.io/) (or drop it on the window), or use it on a real C64 through an SD2IEC, a 1541 Ultimate or a Pi1541, or written to a floppy. `LOAD "$",8` and `LIST` show what's on it.
 
-Or one program by hand, from its folder:
+| Program | On the disk as | Load and run |
+|---|---|---|
+| c64-decimal | `DECIMAL` | `LOAD "DECIMAL",8` then `RUN` |
+| c64-irqmask | `IRQMASK` | `LOAD "IRQMASK",8` then `RUN` |
+| c64-jam | `JAM` | `LOAD "JAM",8` then `RUN` |
+| c64-pagecross, straight and cross | `PAGE-STRAIGHT`, `PAGE-CROSS` | `LOAD "PAGE-CROSS",8` then `RUN` |
+| c64-rasterack, DEC $D019 and final value | `RASTERACK-DEC`, `RASTERACK-FINAL` | `LOAD "RASTERACK-DEC",8` then `RUN` |
+| c64-jmpind | `JMPIND` | `LOAD "JMPIND",8` then `RUN` |
+| c64-lax | `LAX` | `LOAD "LAX",8` then `RUN` |
+| c64-brk | `BRK` | `LOAD "BRK",8,1`, then `NEW`, then `SYS 49152` |
+| c64-sysabc | `SYSABC` | `LOAD "SYSABC",8,1`, then `NEW`, then type the three-line program in [its header](c64/c64-sysabc.asm) and `RUN` it |
 
-```sh
-dasm c64-decimal.asm -f1 -oc64-decimal.prg
-dasm c64-pagecross.asm -f1 -DCROSS=1 -oc64-pagecross-cross.prg     # CROSS=0: the straight bar
-dasm c64-rasterack.asm -f1 -DACK=1 -oc64-rasterack-final.prg       # ACK=0: DEC $D019
-dasm tone.asm -f3 -DORIGIN=\$0CF8 -otone-0cf8.bin                  # ORIGIN=$0300: no crossing
-```
+Each is also in run/ as its own `.prg`, for an emulator or an SD2IEC. They are written for a PAL machine; the page-cross test needs one, because it counts 63 cycles a line.
 
-The NES test needs `build.py`, which joins the iNES header, the program and the font from `nes-font.py`.
-
-## Running
-
-**Commodore 64.** Most programs load at the usual BASIC start: `LOAD "C64-DECIMAL",8` and `RUN`. `c64-brk` and `c64-sysabc` load at $C000: `LOAD "C64-BRK",8,1`, then `NEW`, then `SYS 49152`. For `c64-sysabc`, type the three-line program in its header and `RUN` it. They are written for a PAL machine; `c64-pagecross` needs one, because it counts 63 cycles a line.
-
-**NES.** `nes-decimal.nes` runs in an accurate emulator such as Mesen, or on a NES from a flash cartridge.
+**NES.** [nes-decimal.nes](https://github.com/retro-computer-tv/inside-the-6502/raw/main/run/nes-decimal.nes) runs in an accurate emulator such as [Mesen](https://www.mesen.ca/), or on a NES from a flash cartridge.
 
 **Apple II.** The tone loop is eleven bytes, typed into the Monitor:
 
@@ -57,7 +54,7 @@ Stop it with Reset, then type the same loop at $0CF8 and run it with `CF8G`. Onl
 CF8:AD 30 C0 A2 64 CA D0 FD 4C F8 0C
 ```
 
-Each pass is half a period: 508 cycles at $0300, 607 at $0CF8, so the second note is lower.
+Each pass is half a period: 508 cycles at $0300, 607 at $0CF8, so the second note is lower. For an emulator that loads a file at an address, run/ has both: `tone-0300.bin` at $0300 and `tone-0cf8.bin` at $0CF8.
 
 ## Two to try at the keyboard
 
@@ -73,6 +70,25 @@ SYS loads the processor's status register from location 783 before it calls, so 
 **BRK on an Apple II Plus.** `CALL -151`, then `300:00` and `300G`. The 6502 runs the BRK at $0300, and the Monitor stops and shows the registers.
 
 You need your own copy of each machine's ROMs to run these in an emulator.
+
+## Building
+
+To change a program and build it again, you need [dasm](https://github.com/dasm-assembler/dasm) 2.20 or later. On Windows, take the ready-made `.exe` from its [releases page](https://github.com/dasm-assembler/dasm/releases), not the source code. With Python 3:
+
+```sh
+python build.py              # everything, into run/ (DASM=/path/to/dasm if it isn't on the PATH)
+```
+
+The disk is written by `c1541`, which comes with VICE (`C1541=/path/to/c1541` if it isn't on the PATH). Or one program by hand, from its folder:
+
+```sh
+dasm c64-decimal.asm -f1 -oc64-decimal.prg
+dasm c64-pagecross.asm -f1 -DCROSS=1 -oc64-pagecross-cross.prg     # CROSS=0: the straight bar
+dasm c64-rasterack.asm -f1 -DACK=1 -oc64-rasterack-final.prg       # ACK=0: DEC $D019
+dasm tone.asm -f3 -DORIGIN=\$0CF8 -otone-0cf8.bin                  # ORIGIN=$0300: no crossing
+```
+
+The NES test needs `build.py`, which joins the iNES header, the program and the font from `nes-font.py`.
 
 ## Licence
 
